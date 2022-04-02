@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MapController : MonoBehaviour
 {
-    private int _currentMapNumber = 1;
+    private int _currentMapNumber = 0;
     private int _maxMapNumber = 2;
 
     [SerializeField] private GameObject[] _maps = null;
@@ -16,7 +16,7 @@ public class MapController : MonoBehaviour
         _currentMapNumber++;
         if(_currentMapNumber == _maxMapNumber)
         {
-            _currentMapNumber = 1;
+            _currentMapNumber = 0;
         }
 
         _maps[_currentMapNumber].SetActive(true); //Activate New Map

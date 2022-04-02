@@ -7,24 +7,32 @@ public class AudioManager : Singleton<AudioManager>
 
     #region Fields
     [Header("Sound Datas")]
-    [SerializeField] private SoundData[] _soundDatas = null;
+    [Tooltip("Place Every Sound Data you want to use in here ! (Watch out to not let a slot empty)")]
+    [SerializeField] private SoundData[] _soundDatas = null; //THE SOUND DATA TABLE, 
 
     [Header("Sound & Music Sources")]
-    [SerializeField] private AudioSource _mainSoundSource = null;
+    [Tooltip("2D Sound Source is the prefab model used for all 2D non-looped 'Sound Datas' (Find it in the 'Prefabs/Audio' folder)")]
+    [SerializeField] private AudioSource _2DSoundSource = null; 
+    [Tooltip("3D Sound Source is the prefab model used for all 3D non-looped 'Sound Datas' (Find it in the 'Prefabs/Audio' folder)")]
     [SerializeField] private AudioSource _3DSoundSource = null;
 
-    [SerializeField] private AudioSource _musicSource = null;
-    [SerializeField] private AudioSource _transitionSource = null;
-
+    [Tooltip("2D Repetitive Sound Source is the prefab model used for all 2D looped 'Sound Datas' (Find it in the 'Prefabs/Audio' folder)")]
     [SerializeField] private AudioSource _2DRepetitiveSoundSource = null;
-    [SerializeField] private AudioSource _3DRepetitiveSoundSource = null;
+    [Tooltip("3D Repetitive Sound Source is the prefab model used for all 3D looped 'Sound Datas' (Find it in the 'Prefabs/Audio' folder)")]
+    [SerializeField] private AudioSource _3DRepetitiveSoundSource = null; 
+    [Space]
 
+    [Tooltip("Music Source is a unique 2D AudioSource, it's children of the AudioManager")]
+    [SerializeField] private AudioSource _musicSource = null;
+    [Tooltip("Transition Source is a 2D Audiosource used to do fades and transition. It's also children of the AudioManager")]
+    [SerializeField] private AudioSource _transitionSource = null; 
 
     [Header("Volumes")]
     [Range(0.0f, 1.0f)]
     [SerializeField] private float _soundsVolume = 1f;
     [Range(0.0f, 1.0f)]
     [SerializeField] private float _musicsVolume = 1f;
+    [Space]
 
     private Dictionary<string, SoundData> _soundData = null;
 
@@ -41,6 +49,7 @@ public class AudioManager : Singleton<AudioManager>
 
     //Timer Réference/Attribut
     [Header("Default Timer Value")]
+    [Tooltip("Default value and suggested value is 0.1f")]
     [SerializeField] private float _fadeTick = 0.1f;
 
     //--- FADE IN
@@ -58,9 +67,19 @@ public class AudioManager : Singleton<AudioManager>
     private float _volumeFadeOutTarget = 1f;
     private float _fadeOutTickVolumeValue = 0;
 
-    //Can be used if main musics are used several time, to avoid confusion or error. If used new fonction for those main music has to be created
-    // [Header("Music Names")]                                       
-    // [SerializeField] private string _mainMenuTheme = null;
+
+    [Header("Optional")]
+    [Tooltip("Experimental Method that destroy the sound after it played. Set to true if you want it to be active")]
+    [SerializeField] private bool _activateSoundDestroyer = true;
+
+    [Space]
+    [Tooltip("True = the 'Music Data On Start' will start playing when the game launch")]
+    [SerializeField] private bool _playMusicOnStart = false;
+
+    [Tooltip("Place the SoundData of the music you want to play on start (If 'Play Music On Start' is set to false nothing will happen)")]
+    [SerializeField] private SoundData _musicDataOnStart = null;
+
+
     #endregion Fields
 
     #region Property
@@ -104,9 +123,9 @@ public class AudioManager : Singleton<AudioManager>
 
         _soundData = new Dictionary<string, SoundData>();
 
-        if (_soundDatas.Length >= 1)
+        if (_soundDatas.Length >= 1)    //CHECK IF ANY SOUND DATAS EXIST
         {
-            for (int i = 0; i < _soundDatas.Length; i++)
+            for (int i = 0; i < _soundDatas.Length; i++)    //SETUP THE DICTIONARY CORRECTLY
             {
                 _soundData.Add(_soundDatas[i].Key, _soundDatas[i]);
             }
@@ -118,11 +137,36 @@ public class AudioManager : Singleton<AudioManager>
             _3DRepetitiveSources = new Dictionary<string, AudioSource>();
 
 
-            _timerFadeInTick = new Timer();
+            _timerFadeInTick = new Timer(); //SET UP THE TIMER CORRECTLY (USED FOR MUSIC TRANSITIONS)
             _timerFadeInTick.OnTick += FadeInTick;
 
             _timerFadeOutTick = new Timer();
             _timerFadeOutTick.OnTick += FadeOutTick;
+
+        }
+
+        if(_playMusicOnStart == true)
+        {
+            if(_musicDataOnStart == null)  
+            {
+                Debug.LogWarning("You have to setup the 'Music Data On Start' with the corresponding SoundData of the Music");
+            }
+            else
+            {
+                AudioSource source = _musicSource;
+
+                AudioClip clipToPlay = _musicDataOnStart.Clip;
+
+                source.volume = (_musicDataOnStart.Volume * _soundsVolume);
+
+                source.pitch = _musicDataOnStart.Pitch;
+
+                source.loop = _musicDataOnStart.Loop;
+
+                source.clip = clipToPlay;
+
+                source.Play();
+            }
 
         }
 
@@ -133,7 +177,7 @@ public class AudioManager : Singleton<AudioManager>
     #region Volume Manager
     private void MainSoundVolumeUpdate()
     {
-        _mainSoundSource.volume = _soundsVolume;
+        _2DSoundSource.volume = _soundsVolume;
         _3DSoundSource.volume = _soundsVolume;
         _2DRepetitiveSoundSource.volume = _soundsVolume;
         _3DRepetitiveSoundSource.volume = _soundsVolume;
@@ -158,11 +202,11 @@ public class AudioManager : Singleton<AudioManager>
         else
         {
 
-            if (_soundData[key].Loop == false)   //Verify if the Soundata is set to loop, if it's not the case use PlaySoundOneShot instead
+            if (_soundData[key].Loop == false)   //Verify if the Soundata is set to loop, if it's not the case use PlayAudioOneShot instead
             {
                 Debug.LogWarning("Fnct PlayMusic : The Soundata is not set as loop");
             }
-            PlaySound(_musicSource, key);
+            PlayAudio(_musicSource, key);
         }
 
     }
@@ -182,7 +226,7 @@ public class AudioManager : Singleton<AudioManager>
         else
         {
 
-            if (_soundData[key].Loop == false)   //Verify if the Soundata is set to loop, if it's not the case use PlaySoundOneShot instead
+            if (_soundData[key].Loop == false)   //Verify if the Soundata is set to loop, if it's not the case use PlayAudioOneShot instead
             {
                 Debug.LogWarning("Fnct PlayMusicWithFadeIn : The Soundata is not set as loop");
             }
@@ -194,7 +238,7 @@ public class AudioManager : Singleton<AudioManager>
             _fadeInTickVolumeValue = (_soundData[key].Volume * _musicsVolume) / numberofTick;  //Calcul du volume à incrémenter à chaque tick
             _volumeFadeInTarget = _soundData[key].Volume * _musicsVolume; //Calcul du volume que la source va avoir (Valeur Max)
 
-            PlaySound(_musicSource, key);
+            PlayAudio(_musicSource, key);
 
             _musicSource.volume = 0; //A faire plus propre (comment?)
 
@@ -331,7 +375,7 @@ public class AudioManager : Singleton<AudioManager>
             _fadeInTickVolumeValue = (_soundData[key].Volume * _musicsVolume) / numberofTickFadeIn;  //Calcul du volume à incrémenter à chaque tick
             _volumeFadeInTarget = _soundData[key].Volume * _musicsVolume; //Calcul du volume que la source va avoir (Valeur Max)
 
-            PlaySound(_musicSource, key);
+            PlayAudio(_musicSource, key);
 
             _musicSource.volume = 0; //A faire plus propre (comment?)
 
@@ -350,25 +394,33 @@ public class AudioManager : Singleton<AudioManager>
 
     #region 2DSound
 
+    /// <summary>
+    /// Start a 2D Sound
+    /// </summary>
+    /// <param name="key">Parameter value to pass.</param>
+    /// <returns>Returns an integer based on the passed value.</returns>
     public void Start2DSound(string key)
     {
-        if (_soundData.ContainsKey(key) == false)   //Verify if the Soundata is set to loop, if it's not the case use PlaySoundOneShot instead
+        if (_soundData.ContainsKey(key) == false)   
         {
             Debug.LogError("Fnct StartSound2D : Specified key not found for the audio file");
+            return;
         }
-        else if (_soundData[key].Loop == true) //Verify if the Soundata is set to loop, if it's not the case use PlaySoundOneShot instead
+        else if (_soundData[key].Loop == true) //Verify if the Soundata is set to loop, if it's not the case use PlayAudioOneShot instead
         {
             AudioSource repSource2D = Instantiate(_2DRepetitiveSoundSource, transform);
             _2DRepetitiveSources.Add(key, repSource2D);
 
-            PlaySound(repSource2D, key);
+            PlayAudio(repSource2D, key);
         }
         else
         {
-            AudioSource oneShotSource2D = Instantiate(_mainSoundSource, transform);
-            //_2DSources.Add(key, oneShotSource2D);
+            AudioSource oneShotSource2D = Instantiate(_2DSoundSource, transform);
+           // _2DSources.Add(key, oneShotSource2D);
 
-            PlaySound(oneShotSource2D, key);
+            PlayAudio(oneShotSource2D, key);
+            StartCoroutine(SoundDestroyer(_soundData[key].Clip.length, oneShotSource2D));
+
         }
     }
 
@@ -380,23 +432,24 @@ public class AudioManager : Singleton<AudioManager>
     public void Start3DSound(string key, Transform position)
     {
 
-        if (_soundData.ContainsKey(key) == false)   //Verify if the Soundata is set to loop, if it's not the case use PlaySoundOneShot instead
+        if (_soundData.ContainsKey(key) == false)   //Verify if the Soundata is set to loop, if it's not the case use PlayAudioOneShot instead
         {
             Debug.LogError("Fnct Start3DSound : Specified key not found for the audio file");
+            return;
         }
         else if (_soundData[key].Loop == true)
         {
             AudioSource repSource3D = Instantiate(_3DRepetitiveSoundSource, position);
             _3DRepetitiveSources.Add(key, repSource3D);
 
-            PlaySound(repSource3D, key);
+            PlayAudio(repSource3D, key);
         }
         else
         {
             AudioSource oneShotSource3D = Instantiate(_3DSoundSource, position);
-           // _3DSources.Add(key, oneShotSource3D);
+            //_3DSources.Add(key, oneShotSource3D);
 
-            PlaySound(oneShotSource3D, key);
+            PlayAudio(oneShotSource3D, key);
         }
     }
     #endregion 3DSound
@@ -405,7 +458,7 @@ public class AudioManager : Singleton<AudioManager>
 
     #region Common Sounds
 
-    private void PlaySound(AudioSource source, string key)
+    private void PlayAudio(AudioSource source, string key) //USED BY OTHER METHOD IN THE CLASS
     {
 
         AudioClip clipToPlay = _soundData[key].Clip;
@@ -419,7 +472,7 @@ public class AudioManager : Singleton<AudioManager>
         source.clip = clipToPlay;
 
         source.Play();
-    }
+    } 
 
     public void StopSound(ESoundType soundType, string audioSourceName)
     {
@@ -506,6 +559,12 @@ public class AudioManager : Singleton<AudioManager>
 
     }
 
+
+    IEnumerator SoundDestroyer(float soundLength, AudioSource sourceToDestroy) //SOUND DESTROYER, WAIT FOR THE LENGTH OF THE SOUND AND WHEN THE SOUND IS DONE PLAYING IT WILL DESTROY IT
+    {
+        yield return new WaitForSeconds(soundLength);
+        Destroy(sourceToDestroy.gameObject);
+    }
     #endregion Common Sounds
 
 
