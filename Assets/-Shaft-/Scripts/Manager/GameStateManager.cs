@@ -18,7 +18,7 @@ public class GameStateManager : Singleton<GameStateManager>
     #endregion Fields
 
     #region Properties
-    public AGameState CurrentState => _states[_currenStateType];
+  //  public AGameState CurrentState => _states[_currenStateType];
 
     public EGameState NextState => _nextState;
     public EGameState PreviousState => _previousState;
@@ -39,10 +39,6 @@ public class GameStateManager : Singleton<GameStateManager>
         loadingState.Initialize(EGameState.LOADING);
         _states.Add(EGameState.LOADING, loadingState);
 
-        MainMenuState mainMenuState = new MainMenuState();
-        mainMenuState.Initialize(EGameState.MAINMENU);
-        _states.Add(EGameState.MAINMENU, mainMenuState);
-
         GameState gameState = new GameState();
         gameState.Initialize(EGameState.GAME);
         _states.Add(EGameState.GAME, gameState);
@@ -52,10 +48,10 @@ public class GameStateManager : Singleton<GameStateManager>
 
     protected override void Update()
     {
-        CurrentState.UpdateState();
+      //  CurrentState.UpdateState();
     }
 
-    public void ChangeState(EGameState newState)
+    /*public void ChangeState(EGameState newState)
     {
         Debug.Log("Transition from " + _currenStateType + " to : " + newState);
 
@@ -65,13 +61,13 @@ public class GameStateManager : Singleton<GameStateManager>
         _currenStateType = newState;
 
         CurrentState.EnterState();
-    }
+    }*/
 
     public void LaunchTransition(EGameState newState)
     {
         _previousState = _currenStateType;
         _nextState = newState;
-        ChangeState(EGameState.LOADING);
+      //  ChangeState(EGameState.LOADING);
 
     }
 

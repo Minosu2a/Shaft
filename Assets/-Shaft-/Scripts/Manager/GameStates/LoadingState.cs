@@ -36,7 +36,7 @@ public class LoadingState : AGameState
 
             string sceneName = string.Empty;
             sceneName = GameStateHelper.SetSceneName(GameStateManager.Instance.NextState);
-            _nextOp = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+         //   _nextOp = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
 
             sceneName = GameStateHelper.SetSceneName(GameStateManager.Instance.PreviousState);
             _prevOp = SceneManager.UnloadSceneAsync(sceneName); 
@@ -54,7 +54,7 @@ public class LoadingState : AGameState
 
         if(_loadingOp.isDone && _isLoadFinish && _isUnloadFinish)
         {
-            GameStateManager.Instance.ChangeState(GameStateManager.Instance.NextState);
+        //    GameStateManager.Instance.ChangeState(GameStateManager.Instance.NextState);
         }
 
     }

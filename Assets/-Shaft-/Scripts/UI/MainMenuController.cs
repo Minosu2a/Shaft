@@ -15,7 +15,7 @@ public class MainMenuController : MonoBehaviour
 
     public void Play()
     {
-        GameStateManager.Instance.LaunchTransition(EGameState.GAME);
+       // GameStateManager.Instance.LaunchTransition(EGameState.GAME);
     }
 
     public void Quit()
