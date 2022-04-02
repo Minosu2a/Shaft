@@ -40,6 +40,7 @@ public class PickupCrystal : MonoBehaviour
 
     private void Pickup()
     {
+        AudioManager.Instance.Start3DSound("S_Gather", transform);
         _pickedUp = true;
         _sprite.SetActive(false);
         Instantiate(_particle,transform.position,Quaternion.identity);

@@ -170,6 +170,22 @@ public class AudioManager : Singleton<AudioManager>
 
         }
 
+       CustomStart();
+
+    }
+
+
+    private void CustomStart()
+    {
+        Start2DSound("S_Ambiant");
+      //  PlayMusic("M_Campfire");
+       // Start2DSound("S_Elevator");
+        StartCoroutine(StartMusicDelay());
+
+    }
+    IEnumerator StartMusicDelay()
+    {
+        yield return new WaitForSeconds(1f);
 
     }
     #endregion Start
@@ -416,10 +432,22 @@ public class AudioManager : Singleton<AudioManager>
         else
         {
             AudioSource oneShotSource2D = Instantiate(_2DSoundSource, transform);
-           // _2DSources.Add(key, oneShotSource2D);
+            // _2DSources.Add(key, oneShotSource2D);
 
-            PlayAudio(oneShotSource2D, key);
-            StartCoroutine(SoundDestroyer(_soundData[key].Clip.length, oneShotSource2D));
+            if (_soundData[key].PitchVariation == true)
+            {
+                float rand = Random.Range(_soundData[key].PitchMinimum, _soundData[key].PitchMaximum);
+                oneShotSource2D.pitch = rand;
+                PlayAudioWithPitchVariation(oneShotSource2D, key, rand);
+                StartCoroutine(SoundDestroyer(_soundData[key].Clip.length, oneShotSource2D));
+            }
+            else
+            {
+                PlayAudio(oneShotSource2D, key);
+                StartCoroutine(SoundDestroyer(_soundData[key].Clip.length, oneShotSource2D));
+            }
+
+       
 
         }
     }
@@ -449,7 +477,16 @@ public class AudioManager : Singleton<AudioManager>
             AudioSource oneShotSource3D = Instantiate(_3DSoundSource, position);
             //_3DSources.Add(key, oneShotSource3D);
 
-            PlayAudio(oneShotSource3D, key);
+            if (_soundData[key].PitchVariation == true)
+            {
+                float rand = Random.Range(_soundData[key].PitchMinimum, _soundData[key].PitchMaximum);
+                oneShotSource3D.pitch = rand;
+                PlayAudioWithPitchVariation(oneShotSource3D, key, rand);
+            }
+            else
+            {
+                PlayAudio(oneShotSource3D, key);
+            }
         }
     }
     #endregion 3DSound
@@ -473,6 +510,21 @@ public class AudioManager : Singleton<AudioManager>
 
         source.Play();
     } 
+
+    private void PlayAudioWithPitchVariation(AudioSource source, string key, float pitch)
+    {
+        AudioClip clipToPlay = _soundData[key].Clip;
+
+        source.volume = (_soundData[key].Volume * _soundsVolume);
+
+        source.pitch = pitch;
+
+        source.loop = _soundData[key].Loop;
+
+        source.clip = clipToPlay;
+
+        source.Play();
+    }
 
     public void StopSound(ESoundType soundType, string audioSourceName)
     {

@@ -19,12 +19,21 @@ public class SoundData : ScriptableObject
     [Range(0.0f, 1.0f)]
     [SerializeField] private float _volume = 1;
 
-    [Range(-3.0f, 3.0f)]
+    [Range(0f, 3.0f)]
     [SerializeField] private float _pitch = 1;
+
 
     [Space]
     [SerializeField] private bool _loop = false;
 
+    [Header("Pitch Variation")]
+    [Space]
+    [SerializeField] private bool _pitchVariation = false;
+
+    [Range(0f, 3.0f)]
+    [SerializeField] private float _pitchMinimum = 0.9f;
+    [Range(0f, 3.0f)]
+    [SerializeField] private float _pitchMaximum = 1.1f;
 
     public string Key => _key;
 
@@ -36,4 +45,9 @@ public class SoundData : ScriptableObject
 
     public bool Loop => _loop;
 
+    public bool PitchVariation => _pitchVariation;
+
+    public float PitchMinimum => _pitchMinimum;
+
+    public float PitchMaximum => _pitchMaximum;
 }

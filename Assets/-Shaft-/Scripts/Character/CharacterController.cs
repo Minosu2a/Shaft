@@ -78,6 +78,10 @@ public class CharacterController : MonoBehaviour
             {
                 Debug.Log("DEAAATH !");
             }
+            else
+            {
+                AudioManager.Instance.Start3DSound("S_Damage", transform);
+            }
         }
     }
 
@@ -105,10 +109,12 @@ public class CharacterController : MonoBehaviour
             if(_isLightOn == true)
             {
                 LightOff();
+                AudioManager.Instance.Start3DSound("S_LightOff", transform);
             }
             else
             {
                 LightOn();
+                AudioManager.Instance.Start3DSound("S_LightOn", transform);
             }
         }
 
