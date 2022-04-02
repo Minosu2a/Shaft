@@ -38,6 +38,17 @@ public class CharacterController : MonoBehaviour
     [SerializeField] private GameObject _characterSpriteRight = null;
     [SerializeField] private GameObject _bodyRotation = null;
 
+
+    [Header("Light")]
+    [SerializeField] private Light _pointLight = null;
+    [SerializeField] private Light _beamLight = null;
+    [SerializeField] private float _timeToTurnOffLight = 1f;
+    private float _defaultPointLightIntensity = 1f;
+    private float _defaultBeamLightIntensity = 1f;
+    private bool _isLightOn = false;
+
+    [Header("Maps")]
+    [SerializeField] private MapController _mapController = null;
     #endregion Fields
 
 
@@ -59,16 +70,33 @@ public class CharacterController : MonoBehaviour
         _rb = GetComponent<Rigidbody>();
         CharacterManager.Instance.CharacterController = this;
 
+        _defaultPointLightIntensity = _pointLight.intensity;
+        _defaultBeamLightIntensity = _beamLight.intensity;
+
     }
 
     private void Update()
     {
-        Debug.Log(_rb.velocity);
+       // Debug.Log(_rb.velocity);
         //Jump & Gravity
+
+
         _ySpeed += (Physics.gravity.y * _gravityMultiplier) * Time.deltaTime;
 
-      
 
+
+
+        if (Input.GetButtonDown("Fire1"))
+        {
+            if(_isLightOn == true)
+            {
+                LightOff();
+            }
+            else
+            {
+                LightOn();
+            }
+        }
 
 
         if (Input.GetButtonDown("Jump"))
@@ -104,6 +132,26 @@ public class CharacterController : MonoBehaviour
         }
     }
 
+    private void LightOn()
+    {
+        _isLightOn = true;
+        _pointLight.intensity = _defaultPointLightIntensity;
+        _beamLight.intensity = _defaultBeamLightIntensity;
+        //Feedback
+    }
+
+    private void LightOff()
+    {
+        //Feedback
+        _isLightOn = false;
+        _pointLight.intensity = 0;
+        _beamLight.intensity = 0;
+        _mapController.MapSwitch();
+    }
+
+
+
+    #region Movement 
     private void GroundCheck()
     {
         _groundCheckTimeStamp  += Time.deltaTime;
@@ -165,6 +213,7 @@ public class CharacterController : MonoBehaviour
 
         _rb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
     }
+    #endregion Movement 
 
 
 
