@@ -33,8 +33,11 @@ public class CharacterController : MonoBehaviour
     private float _distToGround = 0.5f;
     [SerializeField] private float _gravityMultiplier = 2;
 
+    [Header("Rotation")]
+    [SerializeField] private GameObject _characterSpriteLeft = null;
+    [SerializeField] private GameObject _characterSpriteRight = null;
+    [SerializeField] private GameObject _bodyRotation = null;
 
-    [SerializeField] private GameObject _characterSprite = null;
     #endregion Fields
 
 
@@ -126,11 +129,17 @@ public class CharacterController : MonoBehaviour
         _rb.velocity = new Vector3(InputManager.Instance.MoveDir.x * _walkSpeed, Gravity(), 0);
         if(_rb.velocity.x >= 0.1f)
         {
-            _characterSprite.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
+            _characterSpriteLeft.SetActive(false);
+            _characterSpriteRight.SetActive(true);
+
+            _bodyRotation.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
         }
         else if(_rb.velocity.x <= -0.1f)
         {
-            _characterSprite.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+            _characterSpriteLeft.SetActive(true);
+            _characterSpriteRight.SetActive(false);
+
+            _bodyRotation.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
         }
 
     }
