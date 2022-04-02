@@ -49,6 +49,13 @@ public class CharacterController : MonoBehaviour
 
     [Header("Maps")]
     [SerializeField] private MapController _mapController = null;
+
+    [Space]
+    [Header("Damage")]
+    [SerializeField] private int _maxHp = 10;
+    private int _currentHp;
+    [SerializeField] private float _xBlockDamageThresold = 0.2f;
+    [SerializeField] private float _yBlockDamageThresold = 0.25f;
     #endregion Fields
 
 
@@ -58,7 +65,21 @@ public class CharacterController : MonoBehaviour
 
     public bool IsMoving => _isMoving;
 
-
+    public int CurrentHp
+    {
+        get
+        {
+            return _currentHp;
+        }
+        set
+        {
+            _currentHp = value;
+            if(_currentHp <= 0)
+            {
+                Debug.Log("DEAAATH !");
+            }
+        }
+    }
 
     #endregion Properties
 
@@ -73,18 +94,11 @@ public class CharacterController : MonoBehaviour
         _defaultPointLightIntensity = _pointLight.intensity;
         _defaultBeamLightIntensity = _beamLight.intensity;
 
+        _currentHp = _maxHp;
     }
 
     private void Update()
     {
-       // Debug.Log(_rb.velocity);
-        //Jump & Gravity
-
-
-        _ySpeed += (Physics.gravity.y * _gravityMultiplier) * Time.deltaTime;
-
-
-
 
         if (Input.GetButtonDown("Fire1"))
         {
@@ -101,15 +115,15 @@ public class CharacterController : MonoBehaviour
 
         if (Input.GetButtonDown("Jump"))
         {
-            Debug.Log("Test");
-            Jump();
-            _jumpCount++;
+            if(GroundCheck() == true)
+            {
+                Jump();
+                _jumpCount++;
+            }
         }
 
 
 
-
-        GroundCheck();
         Move();
 
         if (_rb.velocity != Vector3.zero)
@@ -122,15 +136,28 @@ public class CharacterController : MonoBehaviour
         }
     }
 
-
-
     private void OnCollisionEnter(Collision other)
     {
-        if (other.gameObject.tag == "EnemiLogic")
+
+
+        float xDifference = Mathf.Abs(other.transform.position.x - transform.position.x);
+        float yDifference = Mathf.Abs(other.transform.position.y - transform.position.y);
+
+        //Debug.Log(xDifference + "  " + yDifference);
+
+        if ((xDifference <= _xBlockDamageThresold) && (yDifference <= _yBlockDamageThresold))
+        {
+            Debug.Log("Damage / Current HP " + _currentHp);
+            CurrentHp--;
+        }
+
+        if (other.gameObject.tag == "Wall")
         {
             Debug.Log("Take Damage");
         }
     }
+
+
 
     private void LightOn()
     {
@@ -152,18 +179,21 @@ public class CharacterController : MonoBehaviour
 
 
     #region Movement 
-    private void GroundCheck()
+    private bool GroundCheck()
     {
-        _groundCheckTimeStamp  += Time.deltaTime;
-        if (Physics.Raycast(transform.position, Vector3.down, _distToGround + 0.05f) && _groundCheckTimeStamp >= _jumpingSecurityDelay)
+
+        
+        if (Physics.Raycast(GetComponent<CapsuleCollider>().transform.position, Vector3.down, _distToGround + 1f))
         {
             Debug.Log("Grounded");
-            _isGrounded = true;
-            _ySpeed = 0f;
+            return true;
         }
         else
         {
+            Debug.Log("Not Grounded");
+
             _isGrounded = false;
+            return false;
         }
     }
 
@@ -174,7 +204,8 @@ public class CharacterController : MonoBehaviour
 
     public void Move()
     {
-        _rb.velocity = new Vector3(InputManager.Instance.MoveDir.x * _walkSpeed, Gravity(), 0);
+        _rb.velocity = new Vector3(InputManager.Instance.MoveDir.x * _walkSpeed, _rb.velocity.y, 0);
+
         if(_rb.velocity.x >= 0.1f)
         {
             _characterSpriteLeft.SetActive(false);
@@ -204,14 +235,15 @@ public class CharacterController : MonoBehaviour
         }
         
     }
+
     public void Jump()
     {
-        _groundCheckTimeStamp = 0;
-           Vector3 tmpVel = _rb.velocity;
-        tmpVel.y = 0;
-        _rb.velocity = tmpVel;
-
-        _rb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
+        // _groundCheckTimeStamp = 0;
+        //   Vector3 tmpVel = _rb.velocity;
+        //    tmpVel.y = 0;
+        // _rb.velocity = tmpVel;
+        _rb.velocity = Vector3.up * _jumpForce;
+      //  _rb.AddForce(Vector3.up * _jumpForce, ForceMode.Impulse);
     }
     #endregion Movement 
 
