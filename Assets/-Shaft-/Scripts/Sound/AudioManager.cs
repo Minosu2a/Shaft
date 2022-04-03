@@ -384,6 +384,7 @@ public class AudioManager : Singleton<AudioManager>
         }
 
     }
+
     private void SwitchAudioSource(AudioSource audioToChange, AudioSource audioTarget)
     {
         AudioClip clipToSwitch = audioToChange.clip;

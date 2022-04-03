@@ -129,7 +129,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _sprite: {fileID: 5982678835553697444}
-  _particle: {fileID: 2387635668582013674, guid: 42aa78052ea9ace489e743d5bb8a9a43, type: 3}
+  _particleRed: {fileID: 2387635668582013674, guid: 42aa78052ea9ace489e743d5bb8a9a43, type: 3}
+  _particleBlue: {fileID: 4896146588772080148, guid: 9c1c063e214b0b14384b86bd4196807d, type: 3}
+  _fuelGiven: 80
+  _lifeCrystal: 0
+  _lifeCrystalObject: {fileID: 0}
 --- !u!135 &5982678836523825663
 SphereCollider:
   m_ObjectHideFlags: 0

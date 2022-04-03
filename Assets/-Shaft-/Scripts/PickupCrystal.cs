@@ -7,9 +7,12 @@ public class PickupCrystal : MonoBehaviour
 
     private Collider _playerDetection = null;
     [SerializeField] private GameObject _sprite = null;
-    [SerializeField] private GameObject _particle = null;
+    [SerializeField] private GameObject _particleRed = null;
+    [SerializeField] private GameObject _particleBlue = null;
     [SerializeField] private float _fuelGiven = 80f;
     private bool _pickedUp = false;
+    [SerializeField] private bool _lifeCrystal = false;
+    [SerializeField] private GameObject _lifeCrystalObject = null;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -45,7 +48,27 @@ public class PickupCrystal : MonoBehaviour
         AudioManager.Instance.Start3DSound("S_Gather", transform);
         _pickedUp = true;
         _sprite.SetActive(false);
-        Instantiate(_particle,transform.position,Quaternion.identity);
+
+        Instantiate(_particleRed, transform.position, Quaternion.identity);
+
+        CharacterManager.Instance.CharacterController.CurrentFuel += _fuelGiven;
+
+        if(_lifeCrystal == true)
+        {
+            Debug.Log("Crystal Pick Up Extra Feedback");
+            CharacterManager.Instance.CharacterController.GotCrystal = true;
+            Instantiate(_particleBlue, transform.position, Quaternion.identity);
+        }
+
+
+
+    }
+
+    public void LifeCrystalInit()
+    {
+        _lifeCrystal = true;
+        _lifeCrystalObject.SetActive(true);
+        //Some Light and sound
     }
 
 }

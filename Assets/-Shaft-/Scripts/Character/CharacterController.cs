@@ -96,14 +96,19 @@ public class CharacterController : MonoBehaviour
 
     [Header("Restart")]
     [SerializeField] private Yarn.Unity.DialogueRunner _dialogueRunner = null;
-    [SerializeField] private GameObject _deadBody = null;
+    [SerializeField] private PickupCrystal _deadBody = null;
     [SerializeField] private Transform _startEmplacement = null;
 
+    [Header("Ending")]
+    [SerializeField] private GameObject _crystalInBackPackRight = null;
+    [SerializeField] private GameObject _crystalInBackPackLeft = null;
+
+    private bool _gotCrystal = false;
+    private bool _enableCredits = false;
     #endregion Fields
 
 
     #region Properties
-
     public Rigidbody Rb => _rb;
 
     public bool IsMoving => _isMoving;
@@ -129,9 +134,19 @@ public class CharacterController : MonoBehaviour
                     Debug.Log("NoCouroutineFound I guess");
                 }
                 AudioManager.Instance.Start3DSound("S_Damage", transform);
+                _crystalInBackPackLeft.SetActive(false);
+                _crystalInBackPackRight.SetActive(false);
+
                 _death = true;
                 _camAnimation = true;
-                Restart();
+                if(_enableCredits == true)
+                {
+                    Debug.Log("Cedits");
+                }
+                else
+                {
+                    Restart();
+                }
             }
             else
             {
@@ -140,6 +155,50 @@ public class CharacterController : MonoBehaviour
             }
         }
     }
+    public float CurrentFuel
+    {
+        get
+        {
+            return _currentFuel;
+        }
+        set
+        {
+            _currentFuel = value;
+        }
+    }
+
+    public bool GotCrystal
+    {
+        get
+        {
+            return _gotCrystal;
+        }
+        set
+        {
+            _gotCrystal = value;
+
+            if(_gotCrystal == true)
+            {
+                if(_characterSpriteLeft.activeInHierarchy == true)
+                {
+                    _crystalInBackPackLeft.SetActive(true);
+
+                }
+                else
+                {
+                    _crystalInBackPackRight.SetActive(true);
+                }
+            }
+            else
+            {
+                _crystalInBackPackLeft.SetActive(false);
+                _crystalInBackPackLeft.SetActive(false);
+
+            }
+        }
+        
+    }
+
 
     #endregion Properties
 
@@ -365,10 +424,26 @@ public class CharacterController : MonoBehaviour
 
     private void Restart()
     {
-        Instantiate(_deadBody, transform.position, Quaternion.identity, _mapController.GetMap());
+        PickupCrystal deadBody = Instantiate(_deadBody, transform.position, Quaternion.identity, _mapController.GetMap());
+        if(_gotCrystal == true)
+        {
+            deadBody.LifeCrystalInit();
+            _gotCrystal = false;
+        }
         transform.position = _startEmplacement.position;
+        UIManager.Instance.UIController.FadeOut();
         StartCoroutine(RestartCoroutine());
     }
+
+    public void Ending()
+    {
+        _enableCredits = true;
+        _death = true;
+        _dialogueRunner.StartDialogue("Ending");
+        UIManager.Instance.UIController.EndDialogue();
+    }
+
+    
 
     IEnumerator RestartCoroutine()
     {
@@ -386,6 +461,7 @@ public class CharacterController : MonoBehaviour
         }
 
         yield return new WaitForSeconds(5.7f);
+        UIManager.Instance.UIController.FadeIn();
         AudioManager.Instance.Start2DSound("S_Wake");
         _currentFuel = _maxFuel;
         _currentHp = _maxHp;
@@ -547,7 +623,15 @@ public class CharacterController : MonoBehaviour
         if(_rb.velocity.x >= 0.1f)
         {
             _characterSpriteLeft.SetActive(false);
+
             _characterSpriteRight.SetActive(true);
+
+            if(_gotCrystal == true)
+            {
+                _crystalInBackPackLeft.SetActive(false);
+                _crystalInBackPackRight.SetActive(true);
+            }
+    
 
             _bodyRotation.transform.rotation = Quaternion.Euler(0f, 180f, 0f);
         }
@@ -555,6 +639,14 @@ public class CharacterController : MonoBehaviour
         {
             _characterSpriteLeft.SetActive(true);
             _characterSpriteRight.SetActive(false);
+
+            if(_gotCrystal == true)
+            {
+                _crystalInBackPackLeft.SetActive(true);
+                _crystalInBackPackRight.SetActive(false);
+            }
+            
+
 
             _bodyRotation.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
         }
