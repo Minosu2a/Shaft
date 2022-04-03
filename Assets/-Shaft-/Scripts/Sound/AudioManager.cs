@@ -80,6 +80,10 @@ public class AudioManager : Singleton<AudioManager>
     [SerializeField] private SoundData _musicDataOnStart = null;
 
 
+    [Header("Dirty")]
+    [SerializeField] private AudioSource _monsterTease = null;
+    [SerializeField] private AudioSource _monsterApproach = null;
+
     #endregion Fields
 
     #region Property
@@ -189,6 +193,84 @@ public class AudioManager : Singleton<AudioManager>
 
     }
     #endregion Start
+
+    public void StartTeasingSound(bool condition = true)
+    {
+        string key = "S_MonsterTease";
+
+        if (condition == true)
+        {
+            if (_soundData.ContainsKey(key) == false)
+            {
+                Debug.LogError("Fnct StartSound2D : Specified key not found for the audio file");
+                return;
+            }
+            else
+            {
+                AudioSource oneShotSource2D = _monsterTease;
+
+                // _2DSources.Add(key, oneShotSource2D);
+
+
+                if (_soundData[key].PitchVariation == true)
+                {
+                    float rand = Random.Range(_soundData[key].PitchMinimum, _soundData[key].PitchMaximum);
+                    oneShotSource2D.pitch = rand;
+                    PlayAudioWithPitchVariation(oneShotSource2D, key, rand);
+                    //  StartCoroutine(SoundDestroyer(_soundData[key].Clip.length, oneShotSource2D));
+                }
+                else
+                {
+                    PlayAudio(oneShotSource2D, key);
+                    // StartCoroutine(SoundDestroyer(_soundData[key].Clip.length, oneShotSource2D));
+                }
+            }
+        }
+        else
+        {
+            _monsterTease.Stop();
+        }
+    }
+
+    public void StartMonsterApproach(bool condition = true)
+    {
+        string key = "S_MonsterApproach";
+
+        if (condition == true)
+        {
+            if (_soundData.ContainsKey(key) == false)
+            {
+                Debug.LogError("Fnct StartSound2D : Specified key not found for the audio file");
+                return;
+            }
+            else
+            {
+                AudioSource oneShotSource2D = _monsterApproach;
+
+                // _2DSources.Add(key, oneShotSource2D);
+
+
+                if (_soundData[key].PitchVariation == true)
+                {
+                    float rand = Random.Range(_soundData[key].PitchMinimum, _soundData[key].PitchMaximum);
+                    oneShotSource2D.pitch = rand;
+                    PlayAudioWithPitchVariation(oneShotSource2D, key, rand);
+                  //  StartCoroutine(SoundDestroyer(_soundData[key].Clip.length, oneShotSource2D));
+                }
+                else
+                {
+                    PlayAudio(oneShotSource2D, key);
+                   // StartCoroutine(SoundDestroyer(_soundData[key].Clip.length, oneShotSource2D));
+                }
+            }
+        }
+        else
+        {
+            _monsterApproach.Stop();
+        }
+       
+    }
+
 
     #region Volume Manager
     private void MainSoundVolumeUpdate()
@@ -417,7 +499,7 @@ public class AudioManager : Singleton<AudioManager>
     /// <returns>Returns an integer based on the passed value.</returns>
     public void Start2DSound(string key)
     {
-        if (_soundData.ContainsKey(key) == false)   
+        if (_soundData.ContainsKey(key) == false) 
         {
             Debug.LogError("Fnct StartSound2D : Specified key not found for the audio file");
             return;
@@ -432,7 +514,9 @@ public class AudioManager : Singleton<AudioManager>
         else
         {
             AudioSource oneShotSource2D = Instantiate(_2DSoundSource, transform);
-            // _2DSources.Add(key, oneShotSource2D);
+            
+               // _2DSources.Add(key, oneShotSource2D);
+            
 
             if (_soundData[key].PitchVariation == true)
             {
@@ -482,6 +566,8 @@ public class AudioManager : Singleton<AudioManager>
                 float rand = Random.Range(_soundData[key].PitchMinimum, _soundData[key].PitchMaximum);
                 oneShotSource3D.pitch = rand;
                 PlayAudioWithPitchVariation(oneShotSource3D, key, rand);
+                StartCoroutine(SoundDestroyer(_soundData[key].Clip.length, oneShotSource3D));
+
             }
             else
             {
@@ -489,6 +575,8 @@ public class AudioManager : Singleton<AudioManager>
             }
         }
     }
+
+   
     #endregion 3DSound
 
 
@@ -526,6 +614,35 @@ public class AudioManager : Singleton<AudioManager>
         source.Play();
     }
 
+    public void StopMonsterSound()
+    {
+        GameObject audioSourceToDestoy1;
+        GameObject audioSourceToDestoy2;
+
+
+        try
+        {
+            audioSourceToDestoy1 = _2DSources["S_MonsterApproach"].gameObject;
+            _2DSources.Remove("S_MonsterApproach");
+            Destroy(audioSourceToDestoy1);
+        }
+        catch
+        {
+            return;
+        }
+
+        try
+        {
+            audioSourceToDestoy2 = _2DSources["S_MonsterTease"].gameObject;
+            _2DSources.Remove("S_MonsterTease");
+            Destroy(audioSourceToDestoy2);
+        }
+        catch
+        {
+            return;
+        }
+    }
+
     public void StopSound(ESoundType soundType, string audioSourceName)
     {
         GameObject audioSourceToDestoy;
@@ -545,8 +662,6 @@ public class AudioManager : Singleton<AudioManager>
                 }
                 else
                 {
-
-
                     audioSourceToDestoy = _2DSources[audioSourceName].gameObject;
 
                     _2DSources.Remove(audioSourceName);

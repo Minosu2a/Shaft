@@ -5,6 +5,7 @@ using UnityEngine;
 public class UIController : MonoBehaviour
 {
     #region Fields
+    [SerializeField] private Animator _fade = null;
     #endregion Fields
     #region Property
     #endregion Property
@@ -14,6 +15,10 @@ public class UIController : MonoBehaviour
     private void Awake()
     {
         UIManager.Instance.UIController = this;    
+    }
+    private void Start()
+    {
+        _fade.SetTrigger("FadeIn");
     }
 
     public void TooglePause()
