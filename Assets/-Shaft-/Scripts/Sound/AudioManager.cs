@@ -182,16 +182,11 @@ public class AudioManager : Singleton<AudioManager>
     private void CustomStart()
     {
         Start2DSound("S_Ambiant");
-      //  PlayMusic("M_Campfire");
-       // Start2DSound("S_Elevator");
-        StartCoroutine(StartMusicDelay());
+     //   PlayMusic("M_Campfire");
+      //  Start2DSound("S_Elevator");
 
     }
-    IEnumerator StartMusicDelay()
-    {
-        yield return new WaitForSeconds(1f);
-
-    }
+   
     #endregion Start
 
     public void StartTeasingSound(bool condition = true)

@@ -22,4 +22,8 @@ public class MapController : MonoBehaviour
         _maps[_currentMapNumber].SetActive(true); //Activate New Map
     }
 
+    public Transform GetMap()
+    {
+        return _maps[_currentMapNumber].transform;
+    }
 }

@@ -6,11 +6,36 @@ tags:
 title: ShaftStart
 position: 0,0.5
 ---
-Dude: Hey Buddy wake up we are at our destination
-Dude: Don't die
-Dude: Get the Life Crystal
-Dude: It's a big blue one, can't miss It
-Dude: Oh yeah and come back here once you have It
-Dude: Why am i saying all that 
-Dude: I'm sure you'll die anyway
+Hey buddy wake up we're almost there !
+Remember, save your lamp battery, your's almost dead
+Luckily there's a few oranges crystals in the cave that can restore it
+...
+I don't believe you will find the life-crystal
+Lot of people came before you...
+And you don't look special to me
+But if you do find it make sure to come back here
+And maybe you'll be the one coming back alive
+From what i've heard it's a big blue crystal !
+Alright, time to get out, Good luck i guess haha !
+===
+title: ShaftExit1
+position: 0,0.5
+---
+A other one !
+I bet your death will be painfull
+===
+title: ShaftExit2
+position: 0,0.5
+---
+Don't forget to loot your friends corpses haha !
+===
+title: ShaftExit3
+position: 0,0.5
+---
+Come on hurry up and get that crystal !
+===
+title: Ending
+position: 0,0.5
+---
+
 ===

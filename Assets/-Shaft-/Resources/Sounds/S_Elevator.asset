@@ -15,7 +15,7 @@ MonoBehaviour:
   _key: S_Elevator
   _clip: {fileID: 8300000, guid: c5af41d3b3d88b4458ba652985d1c86c, type: 3}
   _description: 
-  _volume: 0.439
+  _volume: 0.587
   _pitch: 1
   _loop: 0
   _pitchVariation: 0

@@ -62,7 +62,7 @@ public class CharacterController : MonoBehaviour
     [Space]
     [SerializeField] private float _xBlockDamageThresold = 0.2f;
     [SerializeField] private float _yBlockDamageThresold = 0.25f;
-    private bool _death = false;
+    [SerializeField] private bool _death = false;
     [Header("Camera")]
     [SerializeField] private Camera _camera = null;
     private float _defaultCamFOV = 60;
@@ -93,6 +93,12 @@ public class CharacterController : MonoBehaviour
     private bool _monsterGate = false;
     [SerializeField] private Transform _monsterPos = null;
     private Coroutine _monsterCoroutine = null;
+
+    [Header("Restart")]
+    [SerializeField] private Yarn.Unity.DialogueRunner _dialogueRunner = null;
+    [SerializeField] private GameObject _deadBody = null;
+    [SerializeField] private Transform _startEmplacement = null;
+
     #endregion Fields
 
 
@@ -125,6 +131,7 @@ public class CharacterController : MonoBehaviour
                 AudioManager.Instance.Start3DSound("S_Damage", transform);
                 _death = true;
                 _camAnimation = true;
+                Restart();
             }
             else
             {
@@ -155,79 +162,11 @@ public class CharacterController : MonoBehaviour
 
         _timerForDamageZoom = _damageZoomDelay;
         _timerForZoomReset = _resetZoomResetDelay;
+
+        _death = true;
     }
 
-    IEnumerator MonsterKill()
-    {
-        AudioManager.Instance.StartMonsterApproach();
-
-        yield return new WaitForSeconds(1f);
-
-        AudioManager.Instance.StartTeasingSound();
-        float randomX;
-        float randomY;
-
-
-
-        yield return new WaitForSeconds(2f);
-
-        TakeDamage(1);
-        randomX = Random.Range(transform.position.x - 1f, transform.position.x + 1f);
-        randomY = Random.Range(transform.position.y - 1f, transform.position.y + 1f);
-        _monsterPos.position = new Vector3(randomX, randomY, transform.position.z);        
-        switch(Random.Range(0, 1)) { case 0: AudioManager.Instance.Start3DSound("S_MonsterDamage1", _monsterPos); break; case 1: AudioManager.Instance.Start3DSound("S_MonsterDamage2", _monsterPos); break; }
-        
-        yield return new WaitForSeconds(1f);
-
-        TakeDamage(1);
-        randomX = Random.Range(transform.position.x - 1f, transform.position.x + 1f);
-        randomY = Random.Range(transform.position.y - 1f, transform.position.y + 1f);
-        _monsterPos.position =  new Vector3(randomX, randomY, transform.position.z);
-        switch (Random.Range(0, 1)) { case 0: AudioManager.Instance.Start3DSound("S_MonsterDamage1", _monsterPos); break; case 1: AudioManager.Instance.Start3DSound("S_MonsterDamage2", _monsterPos); break; }
-        
-        yield return new WaitForSeconds(1f);
-
-        TakeDamage(2);
-        randomX = Random.Range(transform.position.x - 1f, transform.position.x + 1f);
-        randomY = Random.Range(transform.position.y - 1f, transform.position.y + 1f);
-        _monsterPos.position = new Vector3(randomX, randomY, transform.position.z);
-        switch (Random.Range(0, 1)) { case 0: AudioManager.Instance.Start3DSound("S_MonsterDamage1", _monsterPos); break; case 1: AudioManager.Instance.Start3DSound("S_MonsterDamage2", _monsterPos); break; }
-        
-        yield return new WaitForSeconds(1f);
-
-        TakeDamage(2);
-        randomX = Random.Range(transform.position.x - 1f, transform.position.x + 1f);
-        randomY = Random.Range(transform.position.y - 1f, transform.position.y + 1f);
-        _monsterPos.position = new Vector3(randomX, randomY, transform.position.z);
-        switch (Random.Range(0, 1)) { case 0: AudioManager.Instance.Start3DSound("S_MonsterDamage1", _monsterPos); break; case 1: AudioManager.Instance.Start3DSound("S_MonsterDamage2", _monsterPos); break; }
-        
-        yield return new WaitForSeconds(1f);
-
-        TakeDamage(2);
-        randomX = Random.Range(transform.position.x - 1f, transform.position.x + 1f);
-        randomY = Random.Range(transform.position.y - 1f, transform.position.y + 1f);
-        _monsterPos.position = new Vector3(randomX, randomY, transform.position.z);
-        switch (Random.Range(0, 1)) { case 0: AudioManager.Instance.Start3DSound("S_MonsterDamage1", _monsterPos); break; case 1: AudioManager.Instance.Start3DSound("S_MonsterDamage2", _monsterPos); break; }
-        
-        yield return new WaitForSeconds(1f);
-
-        TakeDamage(2);
-        randomX = Random.Range(transform.position.x - 1f, transform.position.x + 1f);
-        randomY = Random.Range(transform.position.y - 1f, transform.position.y + 1f);
-        _monsterPos.position = new Vector3(randomX, randomY, transform.position.z);
-        switch (Random.Range(0, 1)) { case 0: AudioManager.Instance.Start3DSound("S_MonsterDamage1", _monsterPos); break; case 1: AudioManager.Instance.Start3DSound("S_MonsterDamage2", _monsterPos); break; }
-    }
-
-    private void CancelMonster()
-    {
-        Debug.Log("ça marche ?");
-        StopCoroutine(_monsterCoroutine);
-        AudioManager.Instance.StartMonsterApproach(false);
-        AudioManager.Instance.StartTeasingSound(false);
-        // AudioManager.Instance.StopMonsterSound();
-        _monsterGate = false;
-    }
-
+    #region Update
     private void Update()
     {
         if(_camAnimation == true)
@@ -388,11 +327,9 @@ public class CharacterController : MonoBehaviour
       
 
     }
+    #endregion Update
 
-    public void TakeDamage(int hp)
-    {
-        CurrentHp = CurrentHp - hp;
-    }
+    #region Collision & Damage
     private void OnCollisionEnter(Collision other)
     {
 
@@ -412,6 +349,120 @@ public class CharacterController : MonoBehaviour
         {
             Debug.Log("Take Damage");
         }
+    }
+    public void TakeDamage(int hp)
+    {
+        CurrentHp = CurrentHp - hp;
+    }
+    #endregion Collision & Damage
+
+    public void GameStart()
+    {
+        _currentFuel = _maxFuel;
+        LightOn();
+        _death = false;
+    }
+
+    private void Restart()
+    {
+        Instantiate(_deadBody, transform.position, Quaternion.identity, _mapController.GetMap());
+        transform.position = _startEmplacement.position;
+        StartCoroutine(RestartCoroutine());
+    }
+
+    IEnumerator RestartCoroutine()
+    {
+        switch (Random.Range(0, 3))
+        {
+            case 0:
+                _dialogueRunner.StartDialogue("ShaftExit1");
+                break;
+            case 1:
+                _dialogueRunner.StartDialogue("ShaftExit2");
+                break;
+            case 2:
+                _dialogueRunner.StartDialogue("ShaftExit3");
+                break;
+        }
+
+        yield return new WaitForSeconds(5.7f);
+        AudioManager.Instance.Start2DSound("S_Wake");
+        _currentFuel = _maxFuel;
+        _currentHp = _maxHp;
+        _death = false;
+        LightOn();
+
+    }
+
+    IEnumerator MonsterKill()
+    {
+        AudioManager.Instance.StartMonsterApproach();
+
+        yield return new WaitForSeconds(1f);
+
+        AudioManager.Instance.StartTeasingSound();
+        float randomX;
+        float randomY;
+
+
+
+        yield return new WaitForSeconds(2f);
+
+        TakeDamage(1);
+        randomX = Random.Range(transform.position.x - 1f, transform.position.x + 1f);
+        randomY = Random.Range(transform.position.y - 1f, transform.position.y + 1f);
+        _monsterPos.position = new Vector3(randomX, randomY, transform.position.z);
+        switch (Random.Range(0, 1)) { case 0: AudioManager.Instance.Start3DSound("S_MonsterDamage1", _monsterPos); break; case 1: AudioManager.Instance.Start3DSound("S_MonsterDamage2", _monsterPos); break; }
+
+        yield return new WaitForSeconds(1f);
+
+        TakeDamage(1);
+        randomX = Random.Range(transform.position.x - 1f, transform.position.x + 1f);
+        randomY = Random.Range(transform.position.y - 1f, transform.position.y + 1f);
+        _monsterPos.position = new Vector3(randomX, randomY, transform.position.z);
+        switch (Random.Range(0, 1)) { case 0: AudioManager.Instance.Start3DSound("S_MonsterDamage1", _monsterPos); break; case 1: AudioManager.Instance.Start3DSound("S_MonsterDamage2", _monsterPos); break; }
+
+        yield return new WaitForSeconds(1f);
+
+        TakeDamage(2);
+        randomX = Random.Range(transform.position.x - 1f, transform.position.x + 1f);
+        randomY = Random.Range(transform.position.y - 1f, transform.position.y + 1f);
+        _monsterPos.position = new Vector3(randomX, randomY, transform.position.z);
+        switch (Random.Range(0, 1)) { case 0: AudioManager.Instance.Start3DSound("S_MonsterDamage1", _monsterPos); break; case 1: AudioManager.Instance.Start3DSound("S_MonsterDamage2", _monsterPos); break; }
+
+        yield return new WaitForSeconds(1f);
+
+        TakeDamage(2);
+        randomX = Random.Range(transform.position.x - 1f, transform.position.x + 1f);
+        randomY = Random.Range(transform.position.y - 1f, transform.position.y + 1f);
+        _monsterPos.position = new Vector3(randomX, randomY, transform.position.z);
+        switch (Random.Range(0, 1)) { case 0: AudioManager.Instance.Start3DSound("S_MonsterDamage1", _monsterPos); break; case 1: AudioManager.Instance.Start3DSound("S_MonsterDamage2", _monsterPos); break; }
+
+        yield return new WaitForSeconds(1f);
+
+        TakeDamage(2);
+        randomX = Random.Range(transform.position.x - 1f, transform.position.x + 1f);
+        randomY = Random.Range(transform.position.y - 1f, transform.position.y + 1f);
+        _monsterPos.position = new Vector3(randomX, randomY, transform.position.z);
+        switch (Random.Range(0, 1)) { case 0: AudioManager.Instance.Start3DSound("S_MonsterDamage1", _monsterPos); break; case 1: AudioManager.Instance.Start3DSound("S_MonsterDamage2", _monsterPos); break; }
+
+        yield return new WaitForSeconds(1f);
+
+        TakeDamage(2);
+        randomX = Random.Range(transform.position.x - 1f, transform.position.x + 1f);
+        randomY = Random.Range(transform.position.y - 1f, transform.position.y + 1f);
+        _monsterPos.position = new Vector3(randomX, randomY, transform.position.z);
+        switch (Random.Range(0, 1)) { case 0: AudioManager.Instance.Start3DSound("S_MonsterDamage1", _monsterPos); break; case 1: AudioManager.Instance.Start3DSound("S_MonsterDamage2", _monsterPos); break; }
+    }
+
+    private void CancelMonster()
+    {
+        Debug.Log("ça marche ?");
+        StopCoroutine(_monsterCoroutine);
+        AudioManager.Instance.StartMonsterApproach(false);
+        AudioManager.Instance.StartTeasingSound(false);
+        // AudioManager.Instance.StopMonsterSound();
+        _monsterGate = false;
     }
 
     private void Footstep()

@@ -8,6 +8,7 @@ public class PickupCrystal : MonoBehaviour
     private Collider _playerDetection = null;
     [SerializeField] private GameObject _sprite = null;
     [SerializeField] private GameObject _particle = null;
+    [SerializeField] private float _fuelGiven = 80f;
     private bool _pickedUp = false;
 
     private void OnTriggerEnter(Collider other)
@@ -38,6 +39,7 @@ public class PickupCrystal : MonoBehaviour
         }
     }
 
+ 
     private void Pickup()
     {
         AudioManager.Instance.Start3DSound("S_Gather", transform);

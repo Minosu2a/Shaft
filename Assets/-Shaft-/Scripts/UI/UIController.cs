@@ -18,7 +18,9 @@ public class UIController : MonoBehaviour
     }
     private void Start()
     {
-        _fade.SetTrigger("FadeIn");
+        // StartCoroutine(StartIntroDelay());
+
+
     }
 
     public void TooglePause()
@@ -27,5 +29,12 @@ public class UIController : MonoBehaviour
     }
     #endregion Methods
 
-
+    IEnumerator StartIntroDelay()
+    {
+        yield return new WaitForSeconds(40f);
+        CharacterManager.Instance.CharacterController.GameStart();
+        _fade.SetTrigger("FadeIn");
+        AudioManager.Instance.Start2DSound("S_Wake");
+        CharacterManager.Instance.CharacterController.GameStart();
+    }
 }
