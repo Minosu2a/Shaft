@@ -83,6 +83,8 @@ public class AudioManager : Singleton<AudioManager>
     [Header("Dirty")]
     [SerializeField] private AudioSource _monsterTease = null;
     [SerializeField] private AudioSource _monsterApproach = null;
+    [SerializeField] private AudioSource _ambiantSource = null;
+
 
     #endregion Fields
 
@@ -181,13 +183,46 @@ public class AudioManager : Singleton<AudioManager>
 
     private void CustomStart()
     {
-        Start2DSound("S_Ambiant");
-     //   PlayMusic("M_Campfire");
-      //  Start2DSound("S_Elevator");
-
+        PlayMusic("M_Campfire");
+        Start2DSound("S_Elevator");
+        StartAmbiantSound();
     }
    
     #endregion Start
+
+    public void StartAmbiantSound()
+    {
+        PlayAudio(_ambiantSource, "S_Ambiant");
+    }
+
+    public void StopAmbiantWithFadeOut(float speed)
+    {
+
+        if (!_ambiantSource.isPlaying)
+        {
+            Debug.LogWarning("Fnct Stop Music with Fade Out : There is no Audio playing to fade Out");
+        }
+        else
+        {
+
+            SwitchAudioSource(_ambiantSource, _transitionSource); //Switch du clip vers l'audio source transition
+
+            _ambiantSource.Stop();
+
+
+            _timeToFadeOut = speed;
+
+            float numberofTick = _timeToFadeOut / _fadeTick;  //Calcul du nombre de tick en fonction de speed et la valeur fadeTick
+
+            _fadeOutTickVolumeValue = _transitionSource.volume / numberofTick;  //Calcul du volume à incrémenter à chaque tick
+            _volumeFadeOutTarget = 0; //Calcul du volume que la source va avoir (Valeur Max)
+
+            _transitionSource.Play();
+
+            _timerFadeOutTick.StartTimer(_fadeTick);
+        }
+
+    }
 
     public void StartTeasingSound(bool condition = true)
     {

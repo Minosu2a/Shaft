@@ -105,6 +105,7 @@ public class CharacterController : MonoBehaviour
 
     private bool _gotCrystal = false;
     private bool _enableCredits = false;
+    private bool _firstTimePickingTheCrystal = false;
     #endregion Fields
 
 
@@ -112,6 +113,18 @@ public class CharacterController : MonoBehaviour
     public Rigidbody Rb => _rb;
 
     public bool IsMoving => _isMoving;
+
+    public bool FirstTimePickingTheCrystal
+    {
+        get
+        {
+            return _firstTimePickingTheCrystal;
+        }
+        set
+        {
+            _firstTimePickingTheCrystal = value;
+        }
+    }
 
     public int CurrentHp
     {
@@ -134,6 +147,7 @@ public class CharacterController : MonoBehaviour
                     Debug.Log("NoCouroutineFound I guess");
                 }
                 AudioManager.Instance.Start3DSound("S_Damage", transform);
+                AudioManager.Instance.Start3DSound("S_Death", transform);
                 _crystalInBackPackLeft.SetActive(false);
                 _crystalInBackPackRight.SetActive(false);
 

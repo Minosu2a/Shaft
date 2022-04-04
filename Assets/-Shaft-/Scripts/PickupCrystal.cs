@@ -55,12 +55,19 @@ public class PickupCrystal : MonoBehaviour
 
         if(_lifeCrystal == true)
         {
+            AudioManager.Instance.Start3DSound("S_Crystal", transform);
             Debug.Log("Crystal Pick Up Extra Feedback");
             CharacterManager.Instance.CharacterController.GotCrystal = true;
             Instantiate(_particleBlue, transform.position, Quaternion.identity);
+
+            if (CharacterManager.Instance.CharacterController.FirstTimePickingTheCrystal == false)
+            {
+                AudioManager.Instance.PlayMusicWithFadeIn("M_Delusions", 1.5f);
+                CharacterManager.Instance.CharacterController.FirstTimePickingTheCrystal = true;
+            }
         }
 
-
+    
 
     }
 
@@ -69,6 +76,8 @@ public class PickupCrystal : MonoBehaviour
         _lifeCrystal = true;
         _lifeCrystalObject.SetActive(true);
         //Some Light and sound
+
+      
     }
 
 }
