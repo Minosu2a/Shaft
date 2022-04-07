@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class UIController : MonoBehaviour
 {
@@ -9,6 +10,8 @@ public class UIController : MonoBehaviour
     [SerializeField] private Animator _fade = null;
     [SerializeField] private Yarn.Unity.DialogueRunner _dialogueRunner = null;
     [SerializeField] private TMP_Text _text = null;
+    [SerializeField] private Image _pauseMenu = null;
+    private bool _pauseMenuActive = false;
     #endregion Fields
     #region Property
     #endregion Property
@@ -24,6 +27,30 @@ public class UIController : MonoBehaviour
          StartCoroutine(StartIntroDelay());
 
 
+    }
+
+    private void Update()
+    {
+
+        if (Input.GetButtonDown("Cancel"))
+        {
+         if(_pauseMenuActive == true)
+         {
+                _pauseMenu.gameObject.SetActive(false);
+              //  Time.timeScale = 1;
+         }
+         else
+         {
+                _pauseMenu.gameObject.SetActive(true);
+               // Time.timeScale = 0;
+         }
+        }
+    }
+
+    public void ExitGame()
+    {
+        Application.Quit();
+        Debug.Log("Testttt");
     }
 
     public void Sound()

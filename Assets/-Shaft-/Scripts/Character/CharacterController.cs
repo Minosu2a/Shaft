@@ -244,7 +244,6 @@ public class CharacterController : MonoBehaviour
     {
         if(_camAnimation == true)
         {
-            Debug.Log("SALUT " + _timerForDamageZoom);
             if(_timerForDamageZoom >= 0)
             {
                 Debug.Log("Zoom");
@@ -299,17 +298,18 @@ public class CharacterController : MonoBehaviour
                 _monsterComing = false;
                 _currentFuel -= Time.fixedDeltaTime;
 
-                if (_currentFuel <= _maxFuel / 3.5f)
+                if (_currentFuel <= _maxFuel / 2.5f)
                 {
 
-                    _lightRemainingPerc = Mathf.InverseLerp(_maxFuel / 3.5f, 0f, _currentFuel);
+                    _lightRemainingPerc = Mathf.InverseLerp(_maxFuel / 2.5f, 0f, _currentFuel);
 
                     _pointLight.intensity = Mathf.Lerp(_defaultPointLightIntensity, 0, _lightRemainingPerc);
                     _beamLight.intensity = Mathf.Lerp(_defaultBeamLightIntensity, 0, _lightRemainingPerc);
 
                 }
-                else if (_currentFuel <= _maxFuel / 2)
+                else if (_currentFuel <= _maxFuel / 1.5)
                 {
+                   // float rand = 
                     //Flicker Activation
                 }
 
