@@ -84,6 +84,8 @@ public class AudioManager : Singleton<AudioManager>
     [SerializeField] private AudioSource _monsterTease = null;
     [SerializeField] private AudioSource _monsterApproach = null;
     [SerializeField] private AudioSource _ambiantSource = null;
+    [SerializeField] private AudioSource _elevatorSource = null;
+
 
 
     #endregion Fields
@@ -184,11 +186,15 @@ public class AudioManager : Singleton<AudioManager>
     private void CustomStart()
     {
         PlayMusic("M_Campfire");
-        Start2DSound("S_Elevator");
         StartAmbiantSound();
     }
-   
+
     #endregion Start
+  
+    public void StopElevator()
+    {
+        _elevatorSource.Stop();
+    }
 
     public void StartAmbiantSound()
     {

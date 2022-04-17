@@ -52,6 +52,8 @@ public class CharacterController : MonoBehaviour
     [SerializeField] private float _maxFuel = 240;
     private float _lightRemainingPerc;
     private bool _outOfFuel = false;
+    private float _lightFlickerTimeStamp = 0f;
+    private bool _isInFlicker = false;
 
     [Header("Maps")]
     [SerializeField] private MapController _mapController = null;
@@ -160,6 +162,7 @@ public class CharacterController : MonoBehaviour
                 else
                 {
                     Restart();
+                    _currentFuel = _maxFuel;
                 }
             }
             else
@@ -298,17 +301,45 @@ public class CharacterController : MonoBehaviour
                 _monsterComing = false;
                 _currentFuel -= Time.fixedDeltaTime;
 
-                if (_currentFuel <= _maxFuel / 2.5f)
+
+                if(_currentFuel <= 60)
                 {
-
-                    _lightRemainingPerc = Mathf.InverseLerp(_maxFuel / 2.5f, 0f, _currentFuel);
-
-                    _pointLight.intensity = Mathf.Lerp(_defaultPointLightIntensity, 0, _lightRemainingPerc);
-                    _beamLight.intensity = Mathf.Lerp(_defaultBeamLightIntensity, 0, _lightRemainingPerc);
 
                 }
-                else if (_currentFuel <= _maxFuel / 1.5)
+
+                if (_currentFuel <= _maxFuel / 2f )
                 {
+                    int rand = Random.Range(8, 16);
+
+                    _lightFlickerTimeStamp += Time.deltaTime;
+
+                    if (_lightFlickerTimeStamp >= rand + Random.Range(0.1f, 0.2f))
+                    {
+                        _lightFlickerTimeStamp = 0f;
+                        _isInFlicker = false;
+                    }
+                    else if (_lightFlickerTimeStamp >= rand)
+                    {
+                        _pointLight.intensity = 0.2f;
+                        _beamLight.intensity = 0.2f;
+                        _isInFlicker = true;
+                    }
+
+                    if(_isInFlicker == false)
+                    {
+                        _lightRemainingPerc = Mathf.InverseLerp(_maxFuel / 2.5f, 0f, _currentFuel);
+
+                        _pointLight.intensity = Mathf.Lerp(_defaultPointLightIntensity, 0, _lightRemainingPerc);
+                        _beamLight.intensity = Mathf.Lerp(_defaultBeamLightIntensity, 0, _lightRemainingPerc);
+                    }
+                   
+                }
+                
+                if (_currentFuel <= _maxFuel / 1.8f)
+                {
+                 
+
+
                    // float rand = 
                     //Flicker Activation
                 }
@@ -316,7 +347,6 @@ public class CharacterController : MonoBehaviour
                 if (_currentFuel <= 0)
                 {
                     LightOff();
-                    _outOfFuel = true;
                 }
             }
 
@@ -431,9 +461,12 @@ public class CharacterController : MonoBehaviour
 
     public void GameStart()
     {
-        _currentFuel = _maxFuel;
-        LightOn();
-        _death = false;
+        if(UIManager.Instance.UIController.IsInIntro == true)
+        {
+            _currentFuel = _maxFuel;
+            LightOn();
+            _death = false;
+        }
     }
 
     private void Restart()
@@ -580,7 +613,7 @@ public class CharacterController : MonoBehaviour
 
     private void LightOn()
     {
-        if(_outOfFuel == false)
+        if(_currentFuel > 0)
         {
             _isLightOn = true;
             _pointLight.intensity = _defaultPointLightIntensity;
