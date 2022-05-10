@@ -80,13 +80,6 @@ public class AudioManager : Singleton<AudioManager>
     [SerializeField] private SoundData _musicDataOnStart = null;
 
 
-    [Header("Dirty")]
-    [SerializeField] private AudioSource _monsterTease = null;
-    [SerializeField] private AudioSource _monsterApproach = null;
-    [SerializeField] private AudioSource _ambiantSource = null;
-    [SerializeField] private AudioSource _elevatorSource = null;
-
-
 
     #endregion Fields
 
@@ -183,129 +176,10 @@ public class AudioManager : Singleton<AudioManager>
     }
 
 
-    private void CustomStart()
-    {
-        PlayMusic("M_Campfire");
-        StartAmbiantSound();
-    }
-
     #endregion Start
   
-    public void StopElevator()
-    {
-        _elevatorSource.Stop();
-    }
-
-    public void StartAmbiantSound()
-    {
-        PlayAudio(_ambiantSource, "S_Ambiant");
-    }
-
-    public void StopAmbiantWithFadeOut(float speed)
-    {
-
-        if (!_ambiantSource.isPlaying)
-        {
-            Debug.LogWarning("Fnct Stop Music with Fade Out : There is no Audio playing to fade Out");
-        }
-        else
-        {
-
-            SwitchAudioSource(_ambiantSource, _transitionSource); //Switch du clip vers l'audio source transition
-
-            _ambiantSource.Stop();
 
 
-            _timeToFadeOut = speed;
-
-            float numberofTick = _timeToFadeOut / _fadeTick;  //Calcul du nombre de tick en fonction de speed et la valeur fadeTick
-
-            _fadeOutTickVolumeValue = _transitionSource.volume / numberofTick;  //Calcul du volume à incrémenter à chaque tick
-            _volumeFadeOutTarget = 0; //Calcul du volume que la source va avoir (Valeur Max)
-
-            _transitionSource.Play();
-
-            _timerFadeOutTick.StartTimer(_fadeTick);
-        }
-
-    }
-
-    public void StartTeasingSound(bool condition = true)
-    {
-        string key = "S_MonsterTease";
-
-        if (condition == true)
-        {
-            if (_soundData.ContainsKey(key) == false)
-            {
-                Debug.LogError("Fnct StartSound2D : Specified key not found for the audio file");
-                return;
-            }
-            else
-            {
-                AudioSource oneShotSource2D = _monsterTease;
-
-                // _2DSources.Add(key, oneShotSource2D);
-
-
-                if (_soundData[key].PitchVariation == true)
-                {
-                    float rand = Random.Range(_soundData[key].PitchMinimum, _soundData[key].PitchMaximum);
-                    oneShotSource2D.pitch = rand;
-                    PlayAudioWithPitchVariation(oneShotSource2D, key, rand);
-                    //  StartCoroutine(SoundDestroyer(_soundData[key].Clip.length, oneShotSource2D));
-                }
-                else
-                {
-                    PlayAudio(oneShotSource2D, key);
-                    // StartCoroutine(SoundDestroyer(_soundData[key].Clip.length, oneShotSource2D));
-                }
-            }
-        }
-        else
-        {
-            _monsterTease.Stop();
-        }
-    }
-
-    public void StartMonsterApproach(bool condition = true)
-    {
-        string key = "S_MonsterApproach";
-
-        if (condition == true)
-        {
-            if (_soundData.ContainsKey(key) == false)
-            {
-                Debug.LogError("Fnct StartSound2D : Specified key not found for the audio file");
-                return;
-            }
-            else
-            {
-                AudioSource oneShotSource2D = _monsterApproach;
-
-                // _2DSources.Add(key, oneShotSource2D);
-
-
-                if (_soundData[key].PitchVariation == true)
-                {
-                    float rand = Random.Range(_soundData[key].PitchMinimum, _soundData[key].PitchMaximum);
-                    oneShotSource2D.pitch = rand;
-                    PlayAudioWithPitchVariation(oneShotSource2D, key, rand);
-                  //  StartCoroutine(SoundDestroyer(_soundData[key].Clip.length, oneShotSource2D));
-                }
-                else
-                {
-                    PlayAudio(oneShotSource2D, key);
-                   // StartCoroutine(SoundDestroyer(_soundData[key].Clip.length, oneShotSource2D));
-                }
-            }
-        }
-        else
-        {
-            _monsterApproach.Stop();
-        }
-       
-    }
 
 
     #region Volume Manager
